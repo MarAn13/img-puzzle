@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle</title>
+</head>
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    body {
+        background-color: black;
+    }
+
+    img {
+        display: none;
+    }
+
+    input {
+        margin-top: 5%;
+        margin-left: 5%;
+        color: #ffffff;
+    }
+
+    #col1,
+    #col2 {
+        width: 100%;
+    }
+
+    #col1 {
+        margin-bottom: 5%;
+    }
+
+    #col2 {
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    canvas {
+        border: 1px solid silver;
+    }
+
+    button {
+        margin: 5%;
+    }
+</style>
+
+<body>
+    <div>
+        <div id="col1">
+            <input type="file" id="input" accept="image/*">
+        </div>
+        <img id="img" src="test_img.jpg" alt="">
+        <div id="col2">
+            <button id="button_shuffle">Shuffle</button>
+            <canvas id="canvas" height="400" width="400"></canvas>
+            <button id="button_check">Check</button>
+        </div>
+    </div>
+    <script src="puzzle.js"></script>
+</body>
+
+</html>
