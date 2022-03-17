@@ -22,14 +22,13 @@ const tile_width = Math.floor(canvas.width / tile_row_num);
 const tile_height = Math.floor(canvas.height / tile_col_num);
 const tile_border_size = 1;
 const tile_border_color = 'rgba(255, 255, 255, 255)';
-const tile_selection_size = 1;
 const tile_selection_color = "green";
 let tiles = [];
 let clicked_tile_index = null;
 let check_status = true;
 
 class Tile {
-    constructor(pixel_arr, row, col, width, height, border_size, border_color, selection_size, selection_color) {
+    constructor(pixel_arr, row, col, width, height) {
         this.pixel_arr = pixel_arr;
         this.true_row = row;
         this.true_col = col;
@@ -37,75 +36,15 @@ class Tile {
         this.col = col;
         this.width = width;
         this.height = height;
-        this.border_size = border_size;
-        this.border_color = border_color;
         this.selection = false;
-        this.selection_size = selection_size;
-        this.selection_color = selection_color;
     }
     draw(ctx) {
-        for (let i = 0 + this.border_size; i < this.width - this.border_size; ++i) {
-            for (let j = 0 + this.border_size; j < this.height - this.border_size; ++j) {
-                let index = (i * this.height + j) * 4;
-                let r = this.pixel_arr[index + 0];
-                let g = this.pixel_arr[index + 1];
-                let b = this.pixel_arr[index + 2];
-                let a = this.pixel_arr[index + 3];
-                ctx.fillStyle = 'rgba(' + r.toString() + ', ' + g.toString() + ', ' + b.toString() + ', ' + a.toString() + ')';
-                ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-            }
-        }
-        // border
-        ctx.fillStyle = this.border_color;
-        for (let i = 0; i < this.border_size; ++i) {
-            for (let j = 0; j < this.height; ++j) {
-
-                ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-            }
-        }
-        for (let i = this.width - this.border_size; i < this.width; ++i) {
-            for (let j = 0; j < this.height; ++j) {
-                ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-            }
-        }
-        for (let i = 0; i < this.width; ++i) {
-            for (let j = 0; j < this.border_size; ++j) {
-
-                ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-            }
-        }
-        for (let i = 0; i < this.width; ++i) {
-            for (let j = this.height - this.border_size; j < this.height; ++j) {
-                ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-            }
-        }
-        // selection
-        if (this.selection) {
-            ctx.fillStyle = this.selection_color;
-            for (let i = 0; i < this.selection_size; ++i) {
-                for (let j = 0; j < this.height; ++j) {
-                    ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-                }
-            }
-            for (let i = this.width - this.selection_size; i < this.width; ++i) {
-                for (let j = 0; j < this.height; ++j) {
-                    ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-                }
-            }
-            for (let i = 0; i < this.width; ++i) {
-                for (let j = 0; j < this.selection_size; ++j) {
-                    ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-                }
-            }
-            for (let i = 0; i < this.width; ++i) {
-                for (let j = this.height - this.selection_size; j < this.height; ++j) {
-                    ctx.fillRect(this.col * this.width + i, this.row * this.height + j, 1, 1);
-                }
-            }
-        }
+        let img_data = ctx.getImageData(this.col * this.width, this.row * this.height, this.width, this.height);
+        img_data.data.set(this.pixel_arr);
+        ctx.putImageData(img_data, this.col * this.width, this.row * this.height);
     }
     copy() {
-        let temp = new Tile(this.pixel_arr, this.row, this.col, this.width, this.height, this.border_size, this.border_color, this.selection_size, this.selection_color);
+        let temp = new Tile(this.pixel_arr, this.row, this.col, this.width, this.height);
         temp.true_row = this.true_row;
         temp.true_col = this.true_col;
         temp.selection = this.selection;
@@ -114,14 +53,43 @@ class Tile {
 }
 
 class Puzzle {
-    constructor(tiles, tiles_in_row, tiles_in_col) {
+    constructor(tiles, tiles_in_row, border_size, border_color, selection_color) {
         this.tiles = tiles;
         this.tiles_in_row = tiles_in_row;
-        this.tiles_in_col = tiles_in_col;
+        this.border_size = border_size;
+        this.border_color = border_color;
+        this.selection_color = selection_color;
     }
     draw(ctx) {
         for (let i = 0; i < this.tiles.length; ++i) {
             this.tiles[i].draw(ctx);
+        }
+        // border
+        ctx.strokeStyle = this.border_color;
+        ctx.lineWidth = this.border_size;
+        let tile_width = this.tiles[0].width;
+        let tile_height = this.tiles[0].height;
+        let puzzle_width = tile_width * this.tiles_in_row;
+        let puzzle_height = tile_height * (this.tiles.length / this.tiles_in_row);
+        for (let i = 0; i < this.tiles_in_row; ++i) {
+            ctx.beginPath();
+            ctx.moveTo(i * tile_width, 0);
+            ctx.lineTo(i * tile_width, puzzle_height);
+            ctx.stroke();
+        }
+        for (let i = 0; i < (this.tiles.length / this.tiles_in_row); ++i) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * tile_height);
+            ctx.lineTo(puzzle_width, i * tile_height);
+            ctx.stroke();
+        }
+        // selection
+        ctx.strokeStyle = this.selection_color;
+        for (let i = 0; i < this.tiles.length; ++i) {
+            if (this.tiles[i].selection) {
+                ctx.strokeRect(this.tiles[i].col * tile_width, this.tiles[i].row * tile_height, tile_width, tile_height);
+                break;
+            }
         }
     }
     check() {
@@ -246,14 +214,14 @@ function update_pic() {
     let row = 0,
         col = 0;
     for (let n = 0; n < tile_num; ++n) {
-        if (col === tile_row_num) {
+        if (col === tile_col_num) {
             col = 0;
             ++row;
         }
         let temp_pixel_arr = [];
-        for (let i = col * tile_width; i < (col + 1) * tile_width; ++i) {
-            for (let j = row * tile_height; j < (row + 1) * tile_height; ++j) {
-                let index = (j * temp.width + i) * 4;
+        for (let i = row * tile_height; i < (row + 1) * tile_height; ++i) {
+            for (let j = col * tile_width; j < (col + 1) * tile_width; ++j) {
+                let index = (i * temp.height + j) * 4;
                 let r = temp.data[index + 0];
                 let g = temp.data[index + 1];
                 let b = temp.data[index + 2];
@@ -264,11 +232,11 @@ function update_pic() {
                 temp_pixel_arr.push(a)
             }
         }
-        tiles.push(new Tile(temp_pixel_arr, row, col, tile_width, tile_height, tile_border_size, tile_border_color, tile_selection_size, tile_selection_color));
+        tiles.push(new Tile(temp_pixel_arr, row, col, tile_width, tile_height));
         ++col;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    puzzle = new Puzzle(tiles, tile_row_num, tile_col_num);
+    puzzle = new Puzzle(tiles, tile_row_num, tile_border_size, tile_border_color, tile_selection_color);
     puzzle.draw(ctx);
 }
 
