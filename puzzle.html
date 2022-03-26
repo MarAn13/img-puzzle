@@ -24,7 +24,7 @@
         display: none;
     }
 
-    input {
+    input:first-child {
         margin-top: 5%;
         margin-left: 5%;
         color: #ffffff;
@@ -33,6 +33,7 @@
     #col1,
     #col2 {
         width: 100%;
+        text-align: center;
     }
 
     #col1 {
@@ -40,7 +41,7 @@
     }
 
     #col2 {
-        display:flex;
+        display: flex;
         justify-content: center;
         align-items: center;
     }
@@ -49,21 +50,44 @@
         border: 1px solid silver;
     }
 
-    button {
+    #subcol1,
+    #subcol2 {
         margin: 5%;
+    }
+
+    button {
+        width: 100%;
+        margin: 5%;
+    }
+
+    span {
+        color: white;
     }
 </style>
 
 <body>
     <div>
         <div id="col1">
-            <input type="file" id="input" accept="image/*">
+            <input type="file" id="input_img" accept="image/*">
+            <input type="range" min="1" max="10" step="1" id="input_rows" value="3">
+            <span id="rows_val"></span>
+            <input type="range" min="1" max="10" step="1" id="input_cols" value="3">
+            <span id="cols_val"></span>
         </div>
         <img id="img" src="test_img.jpg" alt="">
         <div id="col2">
-            <button id="button_shuffle">Shuffle</button>
+            <div id="subcol1">
+                <button id="button_shuffle">Shuffle</button>
+            </div>
             <canvas id="canvas" height="400" width="400"></canvas>
-            <button id="button_check">Check</button>
+            <div id="subcol2">
+                <div>
+                    <button id="button_original">Original</button>
+                </div>
+                <div>
+                    <button id="button_check">Check</button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="puzzle.js"></script>

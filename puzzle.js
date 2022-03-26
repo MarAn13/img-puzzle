@@ -4,22 +4,36 @@ const ctx = canvas.getContext('2d');
 
 const img = document.getElementById("img");
 img.addEventListener("load", update_pic, false);
-const input = document.getElementById("input");
-input.addEventListener("change", file_upload, false);
+const input_img = document.getElementById("input_img");
+input_img.addEventListener("change", file_upload, false);
 const reader = new FileReader();
 reader.addEventListener("load", function () {
     img.src = reader.result;
 }, false);
+
+let tile_row_num = 3;
+let tile_col_num = 3;
+let tile_num = tile_col_num * tile_row_num;
+const input_rows = document.getElementById("input_rows");
+input_rows.value = tile_row_num;
+input_rows.addEventListener("input", input_val_change, false);
+const input_cols = document.getElementById("input_cols");
+input_cols.value = tile_col_num;
+input_cols.addEventListener("input", input_val_change, false);
+const rows_val = document.getElementById("rows_val");
+const cols_val = document.getElementById("cols_val");
+rows_val.textContent = tile_row_num;
+cols_val.textContent = tile_col_num;
 const button_shuffle = document.getElementById("button_shuffle");
 button_shuffle.addEventListener("click", shuffle, false);
+const button_original = document.getElementById("button_original");
+button_original.addEventListener("click", show_original, false);
 const button_check = document.getElementById("button_check");
 button_check.addEventListener("click", check, false);
 
-const tile_num = 9;
-const tile_row_num = 3;
-const tile_col_num = 3;
-const tile_width = Math.floor(canvas.width / tile_row_num);
-const tile_height = Math.floor(canvas.height / tile_col_num);
+let tile_width = Math.floor(canvas.width / tile_col_num);
+let tile_height = Math.floor(canvas.height / tile_row_num);
+
 const tile_border_size = 1;
 const tile_border_color = 'rgba(255, 255, 255, 255)';
 const tile_selection_color = "green";
@@ -138,8 +152,29 @@ function gen_int(min, max) {
     return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
+function input_val_change() {
+    if (this.id === "input_rows") {
+        tile_row_num = parseInt(this.value);
+        rows_val.textContent = this.value;
+    } else {
+        tile_col_num = parseFloat(this.value);
+        cols_val.textContent = this.value;
+    }
+    tile_num = tile_col_num * tile_row_num;
+    tile_width = Math.floor(canvas.width / tile_col_num);
+    tile_height = Math.floor(canvas.height / tile_row_num);
+    update_pic();
+}
+
 function shuffle() {
     puzzle.shuffle();
+    puzzle.draw(ctx);
+}
+
+async function show_original(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    await new Promise(r => setTimeout(r, 2000));
     puzzle.draw(ctx);
 }
 
@@ -236,7 +271,7 @@ function update_pic() {
         ++col;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    puzzle = new Puzzle(tiles, tile_row_num, tile_border_size, tile_border_color, tile_selection_color);
+    puzzle = new Puzzle(tiles, tile_col_num, tile_border_size, tile_border_color, tile_selection_color);
     puzzle.draw(ctx);
 }
 
