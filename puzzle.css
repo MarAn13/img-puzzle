@@ -1,55 +1,55 @@
 html,
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-    }
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
 
-    body {
-        background-color: black;
-    }
+body {
+  background-color: black;
+}
 
-    img {
-        display: none;
-    }
+img {
+  display: none;
+}
 
-    input:first-child {
-        margin-top: 5%;
-        margin-left: 5%;
-        color: #ffffff;
-    }
+input:first-child {
+  margin-top: 5%;
+  margin-left: 5%;
+  color: #ffffff;
+}
 
-    #col1,
-    #col2 {
-        width: 100%;
-        text-align: center;
-    }
+#col1,
+#col2 {
+  width: 100%;
+  text-align: center;
+}
 
-    #col1 {
-        margin-bottom: 5%;
-    }
+#col1 {
+  margin-bottom: 5%;
+}
 
-    #col2 {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+#col2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    canvas {
-        border: 1px solid silver;
-    }
+canvas {
+  border: 1px solid silver;
+}
 
-    #subcol1,
-    #subcol2 {
-        margin: 5%;
-    }
+#subcol1,
+#subcol2 {
+  margin: 5%;
+}
 
-    button {
-        width: 100%;
-        margin: 5%;
-    }
+button {
+  width: 100%;
+  margin: 5%;
+}
 
-    span {
-        color: white;
-    }
+span {
+  color: white;
+}
