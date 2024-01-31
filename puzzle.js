@@ -48,13 +48,17 @@ let total_border_size_y = tile_border_size * tile_row_n * 2;
 let tile_offset = 1;
 let total_tile_offset_x = tile_offset * (tile_col_n - 1);
 let total_tile_offset_y = tile_offset * (tile_row_n - 1);
-
+// tile width and height
 let tile_width = Math.floor(
   (canvas.width - total_border_size_x - total_tile_offset_x) / tile_col_n
 );
 let tile_height = Math.floor(
   (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
 );
+// offset to center image 
+// width and height of the image can wary because of the integer bitmap math
+let total_img_offset_x = canvas.width - (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+let total_img_offset_y = canvas.height - (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
 
 let clicked_tile_index = null;
 let check_status = true;
@@ -77,11 +81,13 @@ class Tile {
     let offset_x =
       this.col * this.width +
       this.col * tile_border_size * 2 +
-      this.col * tile_offset;
+      this.col * tile_offset +
+      total_img_offset_x / 2;
     let offset_y =
       this.row * this.height +
       this.row * tile_border_size * 2 +
-      this.row * tile_offset;
+      this.row * tile_offset +
+      total_img_offset_y / 2;
     ctx.putImageData(
       img_data,
       offset_x + tile_border_size,
@@ -190,12 +196,22 @@ function input_val_change() {
   if (this.id === "input_rows") {
     tile_row_n = parseInt(this.value);
     rows_val.textContent = this.value;
-  } else {
+  } else if (this.id === "input_cols") {
     tile_col_n = parseFloat(this.value);
     cols_val.textContent = this.value;
   }
-  tile_width = Math.floor(canvas.width / tile_col_n);
-  tile_height = Math.floor(canvas.height / tile_row_n);
+  total_border_size_x = tile_border_size * tile_col_n * 2;
+  total_border_size_y = tile_border_size * tile_row_n * 2;
+  total_tile_offset_x = tile_offset * (tile_col_n - 1);
+  total_tile_offset_y = tile_offset * (tile_row_n - 1);
+  tile_width = Math.floor(
+    (canvas.width - total_border_size_x - total_tile_offset_x) / tile_col_n
+  );
+  tile_height = Math.floor(
+    (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
+  );
+  total_img_offset_x = canvas.width - (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+  total_img_offset_y = canvas.height - (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
   update_pic();
 }
 
@@ -287,17 +303,18 @@ function file_upload() {
 }
 
 function update_pic() {
+  debug_info();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(
     img,
-    total_border_size_x + total_tile_offset_x,
-    total_border_size_y + total_tile_offset_y,
+    0,
+    0,
     canvas.width - total_border_size_x - total_tile_offset_x,
     canvas.height - total_border_size_y - total_tile_offset_y
   );
-  let temp = ctx.getImageData(
-    total_border_size_x + total_tile_offset_x,
-    total_border_size_y + total_tile_offset_y,
+  let cur_img = ctx.getImageData(
+    0,
+    0,
     canvas.width - total_border_size_x - total_tile_offset_x,
     canvas.height - total_border_size_y - total_tile_offset_y
   );
@@ -309,25 +326,73 @@ function update_pic() {
       col = 0;
       ++row;
     }
-    let temp_pixel_arr = [];
+    let cur_img_pixel_arr = [];
     for (let i = row * tile_height; i < (row + 1) * tile_height; ++i) {
       for (let j = col * tile_width; j < (col + 1) * tile_width; ++j) {
-        let index = (i * temp.height + j) * 4;
-        let r = temp.data[index + 0];
-        let g = temp.data[index + 1];
-        let b = temp.data[index + 2];
-        let a = temp.data[index + 3];
-        temp_pixel_arr.push(r);
-        temp_pixel_arr.push(g);
-        temp_pixel_arr.push(b);
-        temp_pixel_arr.push(a);
+        let index = (i * cur_img.width + j) * 4;
+        let r = cur_img.data[index + 0];
+        let g = cur_img.data[index + 1];
+        let b = cur_img.data[index + 2];
+        let a = cur_img.data[index + 3];
+        cur_img_pixel_arr.push(r);
+        cur_img_pixel_arr.push(g);
+        cur_img_pixel_arr.push(b);
+        cur_img_pixel_arr.push(a);
       }
     }
-    tiles.push(new Tile(temp_pixel_arr, row, col));
+    tiles.push(new Tile(cur_img_pixel_arr, row, col));
     ++col;
   }
   puzzle = new Puzzle(tiles);
   puzzle.draw(ctx);
+}
+
+function debug_info() {
+  console.log(
+    "DEBUG",
+    "\n",
+    "\tCANVAS_WIDTH: ",
+    canvas.width,
+    "\n",
+    "\tCANVAS_HEIGHT: ",
+    canvas.height,
+    "\n",
+    "\tN_ROWS: ",
+    tile_row_n,
+    "\n",
+    "\tN_COLS: ",
+    tile_col_n,
+    "\n",
+    "\tTOTAL_WIDTH: ",
+    tile_width * tile_col_n + total_border_size_x + total_tile_offset_x,
+    "\n",
+    "\tTOTAL_HEIGHT: ",
+    tile_height * tile_row_n + total_border_size_y + total_tile_offset_y,
+    "\n",
+    "\tTILE_WIDTH: ",
+    tile_width,
+    "\n",
+    "\tTILE_HEIGHT: ",
+    tile_height,
+    "\n",
+    "\tTOTAL_BORDER_SIZE_X: ",
+    total_border_size_x,
+    "\n",
+    "\tTOTAL_BORDER_SIZE_Y: ",
+    total_border_size_y,
+    "\n",
+    "\tTOTAL_TILE_OFFSET_X: ",
+    total_tile_offset_x,
+    "\n",
+    "\tTOTAL_TILE_OFFSET_Y: ",
+    total_tile_offset_y,
+    '\n',
+    "\tTOTAL_IMG_OFFSET_X: ",
+    total_img_offset_x,
+    "\n",
+    "\tTOTAL_IMG_OFFSET_Y: ",
+    total_img_offset_y
+  );
 }
 
 img.src = "puzzle_img.jpg";
