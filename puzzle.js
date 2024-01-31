@@ -3,7 +3,7 @@ canvas.addEventListener("click", canvas_click, false);
 const ctx = canvas.getContext("2d");
 
 const img = document.getElementById("img");
-img.addEventListener("load", update_pic, false);
+img.addEventListener("load", update_img, false);
 const input_img = document.getElementById("input_img");
 input_img.addEventListener("change", file_upload, false);
 const reader = new FileReader();
@@ -231,7 +231,7 @@ function input_val_change() {
   total_img_offset_y =
     canvas.height -
     (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
-  update_pic();
+  update_canvas();
 }
 
 function reset() {
@@ -321,8 +321,7 @@ function file_upload() {
   reader.readAsDataURL(file);
 }
 
-function update_pic() {
-  //debug_info();
+function update_canvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(
     img,
@@ -383,7 +382,7 @@ function window_resize() {
   canvas.width = Math.floor(img.naturalWidth * aspect_ratio);
   canvas.height = Math.floor(img.naturalHeight * aspect_ratio);
   update_vars();
-  update_pic();
+  update_canvas();
 }
 
 function update_vars() {
@@ -399,6 +398,11 @@ function update_vars() {
   total_img_offset_y =
     canvas.height -
     (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
+}
+
+function update_img() {
+  window_resize();
+  update_canvas();
 }
 
 function debug_info() {
@@ -450,4 +454,3 @@ function debug_info() {
 }
 
 img.src = "puzzle_img.jpg";
-window_resize();
