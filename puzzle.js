@@ -43,29 +43,39 @@ const tile_border_color = "rgba(255, 255, 255, 255)";
 const tile_selection_color = "rgba(0, 255, 0, 255)";
 
 // to acount for tile's border
-let total_border_size_x = tile_border_size * tile_col_n * 2;
-let total_border_size_y = tile_border_size * tile_row_n * 2;
+let total_border_size = {
+  x: tile_border_size * tile_col_n * 2,
+  y: tile_border_size * tile_row_n * 2,
+};
 // free space between tiles (border not included)
 let tile_offset = 1;
-let total_tile_offset_x = tile_offset * (tile_col_n - 1);
-let total_tile_offset_y = tile_offset * (tile_row_n - 1);
+let total_tile_offset = {
+  x: tile_offset * (tile_col_n - 1),
+  y: tile_offset * (tile_row_n - 1),
+};
 // tile width and height
-let tile_width = Math.floor(
-  (canvas.width - total_border_size_x - total_tile_offset_x) / tile_col_n
-);
-let tile_height = Math.floor(
-  (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
-);
+let tile_size = {
+  width: Math.floor(
+    (canvas.width - total_border_size.x - total_tile_offset.x) / tile_col_n
+  ),
+  height: Math.floor(
+    (canvas.height - total_border_size.y - total_tile_offset.y) / tile_row_n
+  ),
+};
 // offset to center image
 // width and height of the image can wary because of the integer bitmap math
-let total_img_offset_x =
-  canvas.width -
-  (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
-let total_img_offset_y =
-  canvas.height -
-  (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
+let total_img_offset = {
+  x:
+    canvas.width -
+    (tile_size.width * tile_col_n + total_border_size.x + total_tile_offset.x),
+  y:
+    canvas.height -
+    (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y),
+};
 
+// check clicked tile
 let clicked_tile_index = null;
+// restrain check function access when check result is in progress (promise duration)
 let check_status = true;
 
 class Tile {
@@ -73,8 +83,8 @@ class Tile {
     this.pixel_arr = new Uint8ClampedArray(pixel_arr);
     this.row = row;
     this.col = col;
-    this.width = tile_width;
-    this.height = tile_height;
+    this.width = tile_size.width;
+    this.height = tile_size.height;
     this.border_color = tile_border_color;
     this.selection = false;
     // to check puzzle completion
@@ -205,22 +215,22 @@ function input_val_change() {
     tile_col_n = parseFloat(this.value);
     cols_val.textContent = this.value;
   }
-  total_border_size_x = tile_border_size * tile_col_n * 2;
-  total_border_size_y = tile_border_size * tile_row_n * 2;
-  total_tile_offset_x = tile_offset * (tile_col_n - 1);
-  total_tile_offset_y = tile_offset * (tile_row_n - 1);
-  tile_width = Math.floor(
-    (canvas.width - total_border_size_x - total_tile_offset_x) / tile_col_n
+  total_border_size.x = tile_border_size * tile_col_n * 2;
+  total_border_size.y = tile_border_size * tile_row_n * 2;
+  total_tile_offset.x = tile_offset * (tile_col_n - 1);
+  total_tile_offset.y = tile_offset * (tile_row_n - 1);
+  tile_size.width = Math.floor(
+    (canvas.width - total_border_size.x - total_tile_offset.x) / tile_col_n
   );
-  tile_height = Math.floor(
-    (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
+  tile_size.height = Math.floor(
+    (canvas.height - total_border_size.y - total_tile_offset.y) / tile_row_n
   );
   total_img_offset_x =
     canvas.width -
-    (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+    (tile_size.width * tile_col_n + total_border_size.x + total_tile_offset.x);
   total_img_offset_y =
     canvas.height -
-    (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
+    (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
   update_pic();
 }
 
@@ -256,14 +266,14 @@ async function check() {
     return;
   }
   check_status = false;
-  let temp = canvas.style.borderColor;
+  let canvas_border_color = canvas.style.borderColor;
   if (puzzle.check()) {
     canvas.style.borderColor = "rgba(0, 255, 0, 255)";
   } else {
     canvas.style.borderColor = "rgba(255, 0, 0, 255)";
   }
-  await new Promise((r) => setTimeout(r, 2000));
-  canvas.style.borderColor = temp;
+  await new Promise((r) => setTimeout(r, 1000));
+  canvas.style.borderColor = canvas_border_color;
   check_status = true;
 }
 
@@ -312,20 +322,20 @@ function file_upload() {
 }
 
 function update_pic() {
-  debug_info();
+  //debug_info();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(
     img,
     0,
     0,
-    canvas.width - total_border_size_x - total_tile_offset_x,
-    canvas.height - total_border_size_y - total_tile_offset_y
+    canvas.width - total_border_size.x - total_tile_offset.x,
+    canvas.height - total_border_size.y - total_tile_offset.y
   );
   let cur_img = ctx.getImageData(
     0,
     0,
-    canvas.width - total_border_size_x - total_tile_offset_x,
-    canvas.height - total_border_size_y - total_tile_offset_y
+    canvas.width - total_border_size.x - total_tile_offset.x,
+    canvas.height - total_border_size.y - total_tile_offset.y
   );
   let tiles = [];
   let row = 0,
@@ -336,8 +346,16 @@ function update_pic() {
       ++row;
     }
     let cur_img_pixel_arr = [];
-    for (let i = row * tile_height; i < (row + 1) * tile_height; ++i) {
-      for (let j = col * tile_width; j < (col + 1) * tile_width; ++j) {
+    for (
+      let i = row * tile_size.height;
+      i < (row + 1) * tile_size.height;
+      ++i
+    ) {
+      for (
+        let j = col * tile_size.width;
+        j < (col + 1) * tile_size.width;
+        ++j
+      ) {
         let index = (i * cur_img.width + j) * 4;
         let r = cur_img.data[index + 0];
         let g = cur_img.data[index + 1];
@@ -357,10 +375,10 @@ function update_pic() {
 }
 
 function window_resize() {
-  let subcol = document.getElementById("subcol2");
+  let subcol2 = document.getElementById("subcol2");
   let aspect_ratio = Math.min(
-    subcol.clientWidth / img.naturalWidth,
-    subcol.clientHeight / img.naturalHeight
+    subcol2.clientWidth / img.naturalWidth,
+    subcol2.clientHeight / img.naturalHeight
   );
   canvas.width = Math.floor(img.naturalWidth * aspect_ratio);
   canvas.height = Math.floor(img.naturalHeight * aspect_ratio);
@@ -369,18 +387,18 @@ function window_resize() {
 }
 
 function update_vars() {
-  tile_width = Math.floor(
-    (canvas.width - total_border_size_x - total_tile_offset_x) / tile_col_n
+  tile_size.width = Math.floor(
+    (canvas.width - total_border_size.x - total_tile_offset.x) / tile_col_n
   );
-  tile_height = Math.floor(
-    (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
+  tile_size.height = Math.floor(
+    (canvas.height - total_border_size.y - total_tile_offset.y) / tile_row_n
   );
   total_img_offset_x =
     canvas.width -
-    (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+    (tile_size.width * tile_col_n + total_border_size.x + total_tile_offset.x);
   total_img_offset_y =
     canvas.height -
-    (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
+    (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
 }
 
 function debug_info() {
@@ -400,28 +418,28 @@ function debug_info() {
     tile_col_n,
     "\n",
     "\tTOTAL_WIDTH: ",
-    tile_width * tile_col_n + total_border_size_x + total_tile_offset_x,
+    tile_size.width * tile_col_n + total_border_size.x + total_tile_offset.x,
     "\n",
     "\tTOTAL_HEIGHT: ",
-    tile_height * tile_row_n + total_border_size_y + total_tile_offset_y,
+    tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y,
     "\n",
     "\tTILE_WIDTH: ",
-    tile_width,
+    tile_size.width,
     "\n",
     "\tTILE_HEIGHT: ",
-    tile_height,
+    tile_size.height,
     "\n",
     "\tTOTAL_BORDER_SIZE_X: ",
-    total_border_size_x,
+    total_border_size.x,
     "\n",
     "\tTOTAL_BORDER_SIZE_Y: ",
-    total_border_size_y,
+    total_border_size.y,
     "\n",
     "\tTOTAL_TILE_OFFSET_X: ",
-    total_tile_offset_x,
+    total_tile_offset.x,
     "\n",
     "\tTOTAL_TILE_OFFSET_Y: ",
-    total_tile_offset_y,
+    total_tile_offset.y,
     "\n",
     "\tTOTAL_IMG_OFFSET_X: ",
     total_img_offset_x,
