@@ -9,8 +9,8 @@
   </head>
 
   <body>
-    <div>
-      <div id="col1">
+    <div id="wrapper">
+      <div id="row1">
         <input type="file" id="input_img" accept="image/*" />
         <input
           type="range"
@@ -32,7 +32,7 @@
         <span id="cols_val"></span>
       </div>
       <img id="img" src="puzzle_img.jpg" alt="" />
-      <div id="col2">
+      <div id="row2">
         <div id="subcol1">
           <div>
             <button id="button_reset">Reset</button>
@@ -41,8 +41,10 @@
             <button id="button_shuffle">Shuffle</button>
           </div>
         </div>
-        <canvas id="canvas" height="400" width="400"></canvas>
         <div id="subcol2">
+          <canvas id="canvas"></canvas>
+        </div>
+        <div id="subcol3">
           <div>
             <button id="button_original">Original</button>
           </div>

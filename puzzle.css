@@ -20,33 +20,46 @@ input:first-child {
   color: #ffffff;
 }
 
-#col1,
-#col2 {
+#wrapper {
+  height: 100%;
+}
+
+#row1,
+#row2 {
   width: 100%;
   text-align: center;
 }
 
-#col1 {
-  margin-bottom: 5%;
+#row1 {
+  height: 10%;
 }
 
-#col2 {
+#row2 {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 90%;
 }
 
 canvas {
   border: 1px solid silver;
+  width: 100%;
 }
 
 #subcol1,
+#subcol3 {
+  width: 20%;
+}
+
 #subcol2 {
-  margin: 5%;
+  display: flex;
+  width: 80%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 button {
-  width: 100%;
   margin: 5%;
 }
 

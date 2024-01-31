@@ -14,6 +14,7 @@ reader.addEventListener(
   },
   false
 );
+addEventListener("resize", window_resize, false);
 
 let tile_row_n = 3;
 let tile_col_n = 3;
@@ -55,10 +56,14 @@ let tile_width = Math.floor(
 let tile_height = Math.floor(
   (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
 );
-// offset to center image 
+// offset to center image
 // width and height of the image can wary because of the integer bitmap math
-let total_img_offset_x = canvas.width - (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
-let total_img_offset_y = canvas.height - (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
+let total_img_offset_x =
+  canvas.width -
+  (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+let total_img_offset_y =
+  canvas.height -
+  (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
 
 let clicked_tile_index = null;
 let check_status = true;
@@ -210,8 +215,12 @@ function input_val_change() {
   tile_height = Math.floor(
     (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
   );
-  total_img_offset_x = canvas.width - (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
-  total_img_offset_y = canvas.height - (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
+  total_img_offset_x =
+    canvas.width -
+    (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+  total_img_offset_y =
+    canvas.height -
+    (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
   update_pic();
 }
 
@@ -347,6 +356,33 @@ function update_pic() {
   puzzle.draw(ctx);
 }
 
+function window_resize() {
+  let subcol = document.getElementById("subcol2");
+  let aspect_ratio = Math.min(
+    subcol.clientWidth / img.naturalWidth,
+    subcol.clientHeight / img.naturalHeight
+  );
+  canvas.width = Math.floor(img.naturalWidth * aspect_ratio);
+  canvas.height = Math.floor(img.naturalHeight * aspect_ratio);
+  update_vars();
+  update_pic();
+}
+
+function update_vars() {
+  tile_width = Math.floor(
+    (canvas.width - total_border_size_x - total_tile_offset_x) / tile_col_n
+  );
+  tile_height = Math.floor(
+    (canvas.height - total_border_size_y - total_tile_offset_y) / tile_row_n
+  );
+  total_img_offset_x =
+    canvas.width -
+    (tile_width * tile_col_n + total_border_size_x + total_tile_offset_x);
+  total_img_offset_y =
+    canvas.height -
+    (tile_height * tile_row_n + total_border_size_y + total_tile_offset_y);
+}
+
 function debug_info() {
   console.log(
     "DEBUG",
@@ -386,7 +422,7 @@ function debug_info() {
     "\n",
     "\tTOTAL_TILE_OFFSET_Y: ",
     total_tile_offset_y,
-    '\n',
+    "\n",
     "\tTOTAL_IMG_OFFSET_X: ",
     total_img_offset_x,
     "\n",
@@ -396,3 +432,4 @@ function debug_info() {
 }
 
 img.src = "puzzle_img.jpg";
+window_resize();
