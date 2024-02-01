@@ -39,8 +39,8 @@ const button_check = document.getElementById("button_check");
 button_check.addEventListener("click", check, false);
 
 const tile_border_size = 1;
-const tile_border_color = "rgba(255, 255, 255, 255)";
-const tile_selection_color = "rgba(0, 255, 0, 255)";
+const tile_border_color = "rgba(255, 255, 255, 1)";
+const tile_selection_color = "rgba(0, 255, 0, 1)";
 
 // to acount for tile's border
 let total_border_size = {
@@ -245,8 +245,8 @@ function shuffle() {
 }
 
 async function show_swap_wrong(i, j) {
-  puzzle.tiles[i].border_color = "rgba(255, 0, 0, 255)";
-  puzzle.tiles[j].border_color = "rgba(255, 0, 0, 255)";
+  puzzle.tiles[i].border_color = "rgba(255, 0, 0, 1)";
+  puzzle.tiles[j].border_color = "rgba(255, 0, 0, 1)";
   puzzle.draw(ctx);
   await new Promise((r) => setTimeout(r, 300));
   puzzle.tiles[i].border_color = tile_border_color;
@@ -268,9 +268,9 @@ async function check() {
   check_status = false;
   let canvas_border_color = canvas.style.borderColor;
   if (puzzle.check()) {
-    canvas.style.borderColor = "rgba(0, 255, 0, 255)";
+    canvas.style.borderColor = "rgba(0, 255, 0, 1)";
   } else {
-    canvas.style.borderColor = "rgba(255, 0, 0, 255)";
+    canvas.style.borderColor = "rgba(255, 0, 0, 1)";
   }
   await new Promise((r) => setTimeout(r, 1000));
   canvas.style.borderColor = canvas_border_color;
