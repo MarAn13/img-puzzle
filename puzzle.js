@@ -1,3 +1,4 @@
+// [DOM + EVENTS]
 const canvas = document.getElementById("canvas");
 canvas.addEventListener("click", canvas_click, false);
 const ctx = canvas.getContext("2d");
@@ -16,9 +17,6 @@ reader.addEventListener(
 );
 addEventListener("resize", window_resize, false);
 
-let tile_row_n = 3;
-let tile_col_n = 3;
-
 const input_rows = document.getElementById("input_rows");
 input_rows.value = tile_row_n;
 input_rows.addEventListener("input", input_val_change, false);
@@ -27,8 +25,6 @@ input_cols.value = tile_col_n;
 input_cols.addEventListener("input", input_val_change, false);
 const rows_val = document.getElementById("rows_val");
 const cols_val = document.getElementById("cols_val");
-rows_val.textContent = tile_row_n;
-cols_val.textContent = tile_col_n;
 const button_reset = document.getElementById("button_reset");
 button_reset.addEventListener("click", reset, false);
 const button_shuffle = document.getElementById("button_shuffle");
@@ -37,6 +33,12 @@ const button_original = document.getElementById("button_original");
 button_original.addEventListener("click", show_original, false);
 const button_check = document.getElementById("button_check");
 button_check.addEventListener("click", check, false);
+
+// [VARIABLES]
+let tile_row_n = 3;
+let tile_col_n = 3;
+rows_val.textContent = tile_row_n;
+cols_val.textContent = tile_col_n;
 
 const tile_border_size = 1;
 const tile_border_color = "rgba(255, 255, 255, 1)";
@@ -77,6 +79,8 @@ let total_img_offset = {
 let clicked_tile_index = null;
 // restrain check function access when check result is in progress (promise duration)
 let check_status = true;
+
+// [OBJECTS]
 
 class Tile {
   constructor(pixel_arr, row, col) {
@@ -200,6 +204,9 @@ class Puzzle {
   }
 }
 
+// [FUNCTIONS]
+
+// random int generation
 function gen_int(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -207,43 +214,20 @@ function gen_int(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
-function input_val_change() {
-  if (this.id === "input_rows") {
-    tile_row_n = parseInt(this.value);
-    rows_val.textContent = this.value;
-  } else if (this.id === "input_cols") {
-    tile_col_n = parseFloat(this.value);
-    cols_val.textContent = this.value;
-  }
-  total_border_size.x = tile_border_size * tile_col_n * 2;
-  total_border_size.y = tile_border_size * tile_row_n * 2;
-  total_tile_offset.x = tile_offset * (tile_col_n - 1);
-  total_tile_offset.y = tile_offset * (tile_row_n - 1);
-  tile_size.width = Math.floor(
-    (canvas.width - total_border_size.x - total_tile_offset.x) / tile_col_n
-  );
-  tile_size.height = Math.floor(
-    (canvas.height - total_border_size.y - total_tile_offset.y) / tile_row_n
-  );
-  total_img_offset_x =
-    canvas.width -
-    (tile_size.width * tile_col_n + total_border_size.x + total_tile_offset.x);
-  total_img_offset_y =
-    canvas.height -
-    (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
-  update_canvas();
-}
-
+// reset puzzle
 function reset() {
   puzzle.reset();
   puzzle.draw(ctx);
 }
 
+// shuffle puzzle
 function shuffle() {
   puzzle.shuffle();
   puzzle.draw(ctx);
 }
 
+// show swap animation
+// when swap was performed not by rules -> incorrect swap
 async function show_swap_wrong(i, j) {
   puzzle.tiles[i].border_color = "rgba(255, 0, 0, 1)";
   puzzle.tiles[j].border_color = "rgba(255, 0, 0, 1)";
@@ -254,6 +238,7 @@ async function show_swap_wrong(i, j) {
   puzzle.draw(ctx);
 }
 
+// show originally uploaded image
 async function show_original() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -261,6 +246,7 @@ async function show_original() {
   puzzle.draw(ctx);
 }
 
+// check puzzle completion
 async function check() {
   if (!check_status) {
     return;
@@ -277,50 +263,8 @@ async function check() {
   check_status = true;
 }
 
-function canvas_click(event) {
-  const rect = this.getBoundingClientRect();
-  const click_x = event.clientX - rect.left,
-    click_y = event.clientY - rect.top;
-  let temp = -1;
-  for (let n = 0; n < puzzle.tiles.length; ++n) {
-    let tile = puzzle.tiles[n];
-    if (
-      click_x >= tile.col * tile.width &&
-      click_x < (tile.col + 1) * tile.width &&
-      click_y >= tile.row * tile.height &&
-      click_y < (tile.row + 1) * tile.height
-    ) {
-      temp = n;
-      break;
-    }
-  }
-  if (puzzle.tiles[temp].selection) {
-    puzzle.tiles[temp].selection = false;
-  } else {
-    puzzle.tiles[temp].selection = true;
-  }
-  if (clicked_tile_index === null) {
-    clicked_tile_index = temp;
-    puzzle.draw(ctx);
-    return;
-  }
-  if (temp === clicked_tile_index) {
-    clicked_tile_index = null;
-    puzzle.draw(ctx);
-    return;
-  }
-  puzzle.tiles[clicked_tile_index].selection = false;
-  puzzle.tiles[temp].selection = false;
-  puzzle.swap(clicked_tile_index, temp);
-  clicked_tile_index = null;
-  puzzle.draw(ctx);
-}
-
-function file_upload() {
-  const file = this.files[0];
-  reader.readAsDataURL(file);
-}
-
+// update canvas function
+// used when puzzle structure changes (rows, cols) or window is being resized
 function update_canvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(
@@ -373,18 +317,13 @@ function update_canvas() {
   puzzle.draw(ctx);
 }
 
-function window_resize() {
-  let subcol2 = document.getElementById("subcol2");
-  let aspect_ratio = Math.min(
-    subcol2.clientWidth / img.naturalWidth,
-    subcol2.clientHeight / img.naturalHeight
-  );
-  canvas.width = Math.floor(img.naturalWidth * aspect_ratio);
-  canvas.height = Math.floor(img.naturalHeight * aspect_ratio);
-  update_vars();
-  update_canvas();
+// upload a new image instead of the current one
+function file_upload() {
+  const file = this.files[0];
+  reader.readAsDataURL(file);
 }
 
+// utility function to update variables (avoid copypaste)
 function update_vars() {
   tile_size.width = Math.floor(
     (canvas.width - total_border_size.x - total_tile_offset.x) / tile_col_n
@@ -400,11 +339,94 @@ function update_vars() {
     (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
 }
 
+// event listener for DOM-input element changes
+function input_val_change() {
+  if (this.id === "input_rows") {
+    tile_row_n = parseInt(this.value);
+    rows_val.textContent = this.value;
+  } else if (this.id === "input_cols") {
+    tile_col_n = parseFloat(this.value);
+    cols_val.textContent = this.value;
+  }
+  total_border_size.x = tile_border_size * tile_col_n * 2;
+  total_border_size.y = tile_border_size * tile_row_n * 2;
+  total_tile_offset.x = tile_offset * (tile_col_n - 1);
+  total_tile_offset.y = tile_offset * (tile_row_n - 1);
+  tile_size.width = Math.floor(
+    (canvas.width - total_border_size.x - total_tile_offset.x) / tile_col_n
+  );
+  tile_size.height = Math.floor(
+    (canvas.height - total_border_size.y - total_tile_offset.y) / tile_row_n
+  );
+  total_img_offset_x =
+    canvas.width -
+    (tile_size.width * tile_col_n + total_border_size.x + total_tile_offset.x);
+  total_img_offset_y =
+    canvas.height -
+    (tile_size.height * tile_row_n + total_border_size.y + total_tile_offset.y);
+  update_canvas();
+}
+
+// event listener for canvas mouse click 
+function canvas_click(event) {
+  const rect = this.getBoundingClientRect();
+  const click_x = event.clientX - rect.left,
+    click_y = event.clientY - rect.top;
+  let temp = -1;
+  for (let n = 0; n < puzzle.tiles.length; ++n) {
+    let tile = puzzle.tiles[n];
+    if (
+      click_x >= tile.col * tile.width &&
+      click_x < (tile.col + 1) * tile.width &&
+      click_y >= tile.row * tile.height &&
+      click_y < (tile.row + 1) * tile.height
+    ) {
+      temp = n;
+      break;
+    }
+  }
+  if (puzzle.tiles[temp].selection) {
+    puzzle.tiles[temp].selection = false;
+  } else {
+    puzzle.tiles[temp].selection = true;
+  }
+  if (clicked_tile_index === null) {
+    clicked_tile_index = temp;
+    puzzle.draw(ctx);
+    return;
+  }
+  if (temp === clicked_tile_index) {
+    clicked_tile_index = null;
+    puzzle.draw(ctx);
+    return;
+  }
+  puzzle.tiles[clicked_tile_index].selection = false;
+  puzzle.tiles[temp].selection = false;
+  puzzle.swap(clicked_tile_index, temp);
+  clicked_tile_index = null;
+  puzzle.draw(ctx);
+}
+
+// event listener for window resize
+function window_resize() {
+  let subcol2 = document.getElementById("subcol2");
+  let aspect_ratio = Math.min(
+    subcol2.clientWidth / img.naturalWidth,
+    subcol2.clientHeight / img.naturalHeight
+  );
+  canvas.width = Math.floor(img.naturalWidth * aspect_ratio);
+  canvas.height = Math.floor(img.naturalHeight * aspect_ratio);
+  update_vars();
+  update_canvas();
+}
+
+// event listener for image upload (on load after file_upload)
 function update_img() {
   window_resize();
   update_canvas();
 }
 
+// debug statistics
 function debug_info() {
   console.log(
     "DEBUG",
@@ -453,4 +475,5 @@ function debug_info() {
   );
 }
 
+// main
 img.src = "puzzle_img.jpg";
