@@ -18,10 +18,8 @@ reader.addEventListener(
 addEventListener("resize", window_resize, false);
 
 const input_rows = document.getElementById("input_rows");
-input_rows.value = tile_row_n;
 input_rows.addEventListener("input", input_val_change, false);
 const input_cols = document.getElementById("input_cols");
-input_cols.value = tile_col_n;
 input_cols.addEventListener("input", input_val_change, false);
 const rows_val = document.getElementById("rows_val");
 const cols_val = document.getElementById("cols_val");
@@ -39,6 +37,8 @@ let tile_row_n = 3;
 let tile_col_n = 3;
 rows_val.textContent = tile_row_n;
 cols_val.textContent = tile_col_n;
+input_rows.value = tile_row_n;
+input_cols.value = tile_col_n;
 
 const tile_border_size = 1;
 const tile_border_color = "rgba(255, 255, 255, 1)";
